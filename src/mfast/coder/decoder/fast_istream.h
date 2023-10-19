@@ -34,8 +34,7 @@ public:
 
   void decode(decoder_presence_map &pmap) {
     if (!pmap.load(*buf_)) {
-      while (0 == (buf_->sbumpc() & 0x80))
-        ;
+      while (0 == (buf_->sbumpc() & 0x80));
     }
   }
 
