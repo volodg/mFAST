@@ -1,2 +1,10 @@
 build
 .vscode
+/cmake-build-debug/
+/cmake-build-debug---remote/
+/.idea/
+/cmake-build-default/
+/cmake-build-minsizerel/
+/cmake-build-release/
+/cmake-build-relwithdebinfo/
+**/.DS_Store

@@ -27,7 +27,6 @@ class debug_allocator
   : public mfast::malloc_allocator
 {
   public:
-
     debug_allocator()
     {
     }

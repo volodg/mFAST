@@ -13,7 +13,8 @@ else()
    target_link_libraries (fast_type_gen PRIVATE
                    mfast_xml_parser_static
                    mfast_static
-                   mfast_coder_static)
+                   mfast_coder_static
+                   rfast)
 
    set_target_properties(fast_type_gen PROPERTIES VERSION ${mFAST_VERSION})
 
