@@ -27,7 +27,8 @@ public:
   }
 
   template <typename T>
-  const value_storage &delta_base_value_of(const T &mref) const {
+  // const value_storage &delta_base_value_of(const T &mref) const {
+  const value_storage delta_base_value_of(const T &mref) const {
     // The base value depends on the state of the previous value in the
     // following way:
     value_storage &previous = previous_value_of(mref);

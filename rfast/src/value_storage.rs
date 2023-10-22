@@ -8,7 +8,7 @@ pub union ValueStorage {
     pub of_uint64: ValueStorageUint64,
     #[cfg(target_pointer_width = "32")]
     of_uint32: ValueStorageUint32,
-    of_decimal: ValueStorageDecimal,
+    pub of_decimal: ValueStorageDecimal,
     of_group: ValueStorageGroup,
     of_array: ValueStorageArray,
     of_templateref: ValueStorageTemplateRef,
@@ -34,10 +34,10 @@ pub struct ValueStorageUint32 {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct ValueStorageDecimal {
-    present_: u32,
-    exponent_: i16,
-    defined_bit_: u16, // least significant bit
-    mantissa_: i64,
+    pub present_: u32,
+    pub exponent_: i16,
+    pub defined_bit_: u16, // least significant bit
+    pub mantissa_: i64,
 }
 
 #[repr(C)]

@@ -24,6 +24,13 @@ void set_uint64_set_value(r_value_storage* storage, uint32_t value);
 #else
 void set_uint64_set_value(r_value_storage* storage, uint64_t value);
 #endif
+void set_decimal_defined_bit(r_value_storage* storage, bool defined);
+void set_decimal_present(r_value_storage* storage, bool defined);
+void set_decimal_mantissa_and_exponent(r_value_storage* storage, int64_t mantissa, int16_t exponent);
+void set_decimal_mantissa(r_value_storage* storage, int64_t mantissa);
+void set_decimal_exponent(r_value_storage* storage, int16_t exponent);
+int64_t get_decimal_mantissa(const r_value_storage* storage);
+int16_t get_decimal_exponent(const r_value_storage* storage);
 }
 
 namespace mfast {
@@ -191,32 +198,39 @@ template <typename IntType> struct int_value_storage {
 };
 
 struct decimal_value_storage {
-  value_storage storage_;
+  r_value_storage storage_;
 
   decimal_value_storage() {
-      storage_.of_decimal.defined_bit_ = 1;
+      set_decimal_defined_bit(&storage_, true);
   }
-  explicit decimal_value_storage(value_storage s) : storage_(std::move(s)) {
-
+  explicit decimal_value_storage(value_storage s) {
+      memcpy(&storage_, &s, sizeof(s));
   }
   decimal_value_storage(int64_t mantissa, int16_t exponent) {
-    storage_.of_decimal.defined_bit_ = 1;
-    storage_.of_decimal.present_ = 1;
-    storage_.of_decimal.mantissa_ = mantissa;
-    storage_.of_decimal.exponent_ = exponent;
+    set_decimal_defined_bit(&storage_, true);
+    set_decimal_present(&storage_, true);
+    set_decimal_mantissa_and_exponent(&storage_, mantissa, exponent);
   }
 
-  int64_t mantissa() const { return storage_.of_decimal.mantissa_; }
-  int16_t exponent() const { return storage_.of_decimal.exponent_; }
-  void mantissa(int64_t m) { storage_.of_decimal.mantissa_ = m; }
-  void exponent(int16_t e) { storage_.of_decimal.exponent_ = e; }
+  int64_t mantissa() const {
+      return get_decimal_mantissa(&storage_);
+  }
+  int16_t exponent() const {
+      return get_decimal_exponent(&storage_);
+  }
+  void mantissa(int64_t m) {
+      set_decimal_mantissa(&storage_, m);
+  }
+  void exponent(int16_t e) {
+      set_decimal_exponent(&storage_, e);
+  }
 };
 
 struct string_value_storage {
   value_storage storage_;
 
   string_value_storage() { storage_.of_array.defined_bit_ = 1; }
-  explicit string_value_storage(value_storage s) : storage_(std::move(s)) {}
+  explicit string_value_storage(value_storage s) : storage_(s) {}
   string_value_storage(const char *v) {
     storage_.of_array.defined_bit_ = 1;
     storage_.of_array.len_ = static_cast<uint32_t>(std::strlen(v) + 1);

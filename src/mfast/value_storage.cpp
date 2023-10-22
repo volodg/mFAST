@@ -52,7 +52,7 @@ std::istream &operator>>(std::istream &strm, decimal_value_storage &storage) {
   }
   storage.mantissa(mantissa);
   storage.exponent(exponent);
-  storage.storage_.present(1);
+  set_uint64_present(&storage.storage_, true);
   return strm;
 }
 

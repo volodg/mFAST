@@ -70,7 +70,8 @@ public:
   const mantissa_field_instruction *mantissa_instruction() const {
     return mantissa_instruction_;
   }
-  const value_storage &initial_or_default_value() const {
+  // const value_storage &initial_or_default_value() const {
+  const value_storage initial_or_default_value() const {
     if (initial_value_.is_empty()) {
       static const decimal_value_storage default_value(0, 0);
       return default_value.storage_;
