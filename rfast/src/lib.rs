@@ -1,3 +1,4 @@
+use std::ffi::c_char;
 use crate::value_storage::ValueStorage;
 
 mod value_storage;
@@ -82,6 +83,40 @@ pub extern "C" fn get_decimal_exponent(storage: *const ValueStorage) -> i16 {
 pub extern "C" fn set_uint64_set_value(storage: *mut ValueStorage, value: u32) {
     unsafe {
         (*storage).set(value);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn set_array_defined_bit(storage: *mut ValueStorage, defined: bool) {
+    unsafe {
+        (*storage).of_array.set_defined(defined)
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn set_string_value(storage: *mut ValueStorage, value: *const c_char) {
+    unsafe {
+        (*storage).of_array.set_defined(true);
+        (*storage).of_array.len_ = (std::ffi::CStr::from_ptr(value).to_bytes().len() + 1) as u32;
+        (*storage).of_array.content_ = value as *mut std::ffi::c_void;
+        (*storage).of_array.set_capacity_in_bytes(0);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn set_string_value_with_size(storage: *mut ValueStorage, value: *const c_char, size: usize) {
+    unsafe {
+        (*storage).of_array.set_defined(true);
+        (*storage).of_array.len_ = (size + 1) as u32;
+        (*storage).of_array.content_ = value as *mut std::ffi::c_void;
+        (*storage).of_array.set_capacity_in_bytes(0);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn get_array_is_empty(storage: *mut ValueStorage) -> bool {
+    unsafe {
+        (*storage).of_array.len_ == 0
     }
 }
 

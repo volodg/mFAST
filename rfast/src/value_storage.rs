@@ -10,7 +10,7 @@ pub union ValueStorage {
     of_uint32: ValueStorageUint32,
     pub of_decimal: ValueStorageDecimal,
     of_group: ValueStorageGroup,
-    of_array: ValueStorageArray,
+    pub of_array: ValueStorageArray,
     of_templateref: ValueStorageTemplateRef,
 }
 
@@ -58,7 +58,7 @@ pub struct ValueStorageArray {
     ///content is absent
     /// when len==0.
     /// In the case of empty string, len == 1 and content_[0]= '\0'.
-    len_: u32,
+    pub len_: u32,
     ///"capacity_in_bytes" < used to track the length of memory
     ///that has been reserved
     ///< for \a content_. if <tt>.capacity_in_bytes_ == 0</tt> and <tt>len_ >
@@ -69,7 +69,7 @@ pub struct ValueStorageArray {
     ///tracking if a dictionary
     ///< value is defined or not.
     capacity_in_bytes_and_defined_bit_: u32, // defined_bit_ is least significant bit
-    content_: *mut std::ffi::c_void,
+    pub content_: *mut std::ffi::c_void,
 }
 
 #[repr(C)]
@@ -203,5 +203,15 @@ impl ValueStorage {
             T: Copy + Integer,
     {
         self.of_uint64.content_ = v.into();
+    }
+}
+
+impl ValueStorageArray {
+    pub fn set_defined(&mut self, defined: bool) {
+        self.capacity_in_bytes_and_defined_bit_.set_bit(0, defined);
+    }
+
+    pub fn set_capacity_in_bytes(&mut self, capacity: u32) {
+        self.capacity_in_bytes_and_defined_bit_.set_bits(1..=31, capacity);
     }
 }
