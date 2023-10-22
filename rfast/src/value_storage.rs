@@ -1,6 +1,7 @@
 use std::ffi::c_uint;
 use crate::instructions::template_instruction::TemplateInstruction;
 use intbits::Bits;
+use num::Integer;
 
 #[repr(C)]
 pub union ValueStorage {
@@ -159,44 +160,48 @@ impl ValueStorage {
     }
 }
 
-// #[cfg(target_pointer_width = "32")]
-// impl ValueStorage {
-//     fn get<T>(&self) -> T
-//         where
-//             T: Copy,
-//     {
-//         if std::mem::size_of::<T>() <= 4 {
-//             self.of_uint32.content_ as T
-//         } else {
-//             self.of_uint64.content_ as T
-//         }
-//     }
-//
-//     fn set<T>(&mut self, v: T)
-//         where
-//             T: Copy,
-//     {
-//         if std::mem::size_of::<T>() <= 4 {
-//             self.of_uint32.content_ = v as u32;
-//         } else {
-//             self.of_uint64.content_ = v as u64;
-//         }
-//     }
-// }
-//
-// #[cfg(target_pointer_width = "64")]
-// impl ValueStorage {
-//     fn get<T>(&self) -> T
-//         where
-//             T: Copy,
-//     {
-//         self.of_uint64.content_ as T
-//     }
-//
-//     fn set<T>(&mut self, v: T)
-//         where
-//             T: Copy,
-//     {
-//         self.of_uint64.content_ = v as u64;
-//     }
-//}
+#[cfg(target_pointer_width = "32")]
+impl ValueStorage {
+    fn get<T>(&self) -> T
+        where
+            T: Copy,
+    {
+        if std::mem::size_of::<T>() <= 4 {
+            self.of_uint32.content_ as T
+        } else {
+            self.of_uint64.content_ as T
+        }
+    }
+
+    fn set<T>(&mut self, v: T)
+        where
+            T: Copy,
+    {
+        if std::mem::size_of::<T>() <= 4 {
+            self.of_uint32.content_ = v as u32;
+        } else {
+            self.of_uint64.content_ = v as u64;
+        }
+    }
+}
+
+#[cfg(target_pointer_width = "64")]
+impl ValueStorage {
+    fn get<T>(&self) -> T
+        where
+            u64: Into<T>,
+            T: Copy + Integer,
+    {
+        unsafe {
+            self.of_uint64.content_.into()
+        }
+    }
+
+    fn set<T>(&mut self, v: T)
+        where
+            u64: From<T>,
+            T: Copy + Integer,
+    {
+        self.of_uint64.content_ = v.into();
+    }
+}

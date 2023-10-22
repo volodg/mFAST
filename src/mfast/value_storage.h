@@ -151,11 +151,13 @@ union MFAST_EXPORT value_storage {
   }
 };
 
+static_assert(sizeof(value_storage) == 16, "");
+
 template <typename IntType> struct int_value_storage {
   value_storage storage_;
 
   int_value_storage() { storage_.of_uint64.defined_bit_ = 1; }
-  explicit int_value_storage(value_storage s) : storage_(std::move(s)) {}
+  explicit int_value_storage(value_storage s) : storage_(s) {}
   int_value_storage(IntType v) {
     storage_.of_uint64.defined_bit_ = 1;
     storage_.of_uint64.present_ = 1;
