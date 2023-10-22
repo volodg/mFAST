@@ -5,7 +5,7 @@ use num::Integer;
 
 #[repr(C)]
 pub union ValueStorage {
-    of_uint64: ValueStorageUint64,
+    pub of_uint64: ValueStorageUint64,
     #[cfg(target_pointer_width = "32")]
     of_uint32: ValueStorageUint32,
     of_decimal: ValueStorageDecimal,
@@ -17,8 +17,8 @@ pub union ValueStorage {
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct ValueStorageUint64 {
-    present_: u32,
-    defined_bit_: u32, // least significant bit
+    pub present_: u32,
+    pub defined_bit_: u32, // least significant bit
     content_: u64,
 }
 
@@ -173,7 +173,7 @@ impl ValueStorage {
         }
     }
 
-    fn set<T>(&mut self, v: T)
+    pub fn set<T>(&mut self, v: T)
         where
             T: Copy,
     {
@@ -197,7 +197,7 @@ impl ValueStorage {
         }
     }
 
-    fn set<T>(&mut self, v: T)
+    pub fn set<T>(&mut self, v: T)
         where
             u64: From<T>,
             T: Copy + Integer,

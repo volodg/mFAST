@@ -67,7 +67,8 @@ target_link_libraries (mfast_test
                        mfast_static
                        mfast_coder_static
                        mfast_json_static
-                       mfast_xml_parser_static)
+                       mfast_xml_parser_static
+                       rfast)
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")

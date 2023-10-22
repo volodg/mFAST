@@ -11,6 +11,21 @@
 #include <array>
 #include <istream>
 
+struct r_value_storage {
+    uint64_t reserved1_ = {};
+    uint64_t reserved2_ = {};
+};
+
+extern "C" {
+void set_uint64_defined_bit(r_value_storage* storage, bool defined);
+void set_uint64_present(r_value_storage* storage, bool defined);
+#if SIZEOF_VOID_P == 4
+void set_uint64_set_value(r_value_storage* storage, uint32_t value);
+#else
+void set_uint64_set_value(r_value_storage* storage, uint64_t value);
+#endif
+}
+
 namespace mfast {
 class template_instruction;
 
@@ -149,28 +164,41 @@ union MFAST_EXPORT value_storage {
   template <typename T> enable_if_t<std::is_pointer<T>::value> set(void *v) {
     of_array.content_ = v;
   }
+
+ value_storage(r_value_storage s) {
+    memcpy(this, &s, sizeof(s));
+ }
 };
 
 static_assert(sizeof(value_storage) == 16, "");
 
+static_assert(sizeof(r_value_storage) == sizeof(value_storage), "");
+
 template <typename IntType> struct int_value_storage {
-  value_storage storage_;
+  r_value_storage storage_;
 
-  int_value_storage() { storage_.of_uint64.defined_bit_ = 1; }
-  explicit int_value_storage(value_storage s) : storage_(s) {}
+  int_value_storage() {
+      set_uint64_defined_bit(&storage_, true);
+  }
+  int_value_storage(value_storage s) {
+      memcpy(&storage_, &s, sizeof(s));
+  }
   int_value_storage(IntType v) {
-    storage_.of_uint64.defined_bit_ = 1;
-    storage_.of_uint64.present_ = 1;
-
-    storage_.set<IntType>(v);
+    set_uint64_defined_bit(&storage_, true);
+    set_uint64_present(&storage_, true);
+    set_uint64_set_value(&storage_, v);
   }
 };
 
 struct decimal_value_storage {
   value_storage storage_;
 
-  decimal_value_storage() { storage_.of_decimal.defined_bit_ = 1; }
-  explicit decimal_value_storage(value_storage s) : storage_(std::move(s)) {}
+  decimal_value_storage() {
+      storage_.of_decimal.defined_bit_ = 1;
+  }
+  explicit decimal_value_storage(value_storage s) : storage_(std::move(s)) {
+
+  }
   decimal_value_storage(int64_t mantissa, int16_t exponent) {
     storage_.of_decimal.defined_bit_ = 1;
     storage_.of_decimal.present_ = 1;
