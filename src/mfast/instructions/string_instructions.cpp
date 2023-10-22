@@ -21,7 +21,7 @@ ascii_field_instruction::ascii_field_instruction(
       prev_value_(&prev_storage_),
       initial_or_default_value_(initial_value_.is_empty() ? &default_value_
                                                           : &initial_value_) {
-  has_initial_value_ = !initial_value.storage_.is_empty();
+  has_initial_value_ = !get_array_is_empty(&initial_value.storage_);
 }
 
 ascii_field_instruction::ascii_field_instruction(

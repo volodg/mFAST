@@ -208,10 +208,10 @@ impl ValueStorage {
 
 impl ValueStorageArray {
     pub fn set_defined(&mut self, defined: bool) {
-        self.capacity_in_bytes_and_defined_bit_.set_bit(0, defined);
+        self.capacity_in_bytes_and_defined_bit_.set_bit(31, defined);
     }
 
     pub fn set_capacity_in_bytes(&mut self, capacity: u32) {
-        self.capacity_in_bytes_and_defined_bit_.set_bits(1..=31, capacity);
+        self.capacity_in_bytes_and_defined_bit_.set_bits(0..=30, capacity);
     }
 }

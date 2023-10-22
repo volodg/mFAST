@@ -12,8 +12,10 @@
 #include <istream>
 
 struct r_value_storage {
-    uint64_t reserved1_ = {};
-    uint64_t reserved2_ = {};
+    uint32_t reserved1_ = {};
+    uint32_t reserved2_ = {};
+    uint32_t reserved3_ = {};
+    uint32_t reserved4_ = {};
 };
 
 extern "C" {
@@ -31,6 +33,10 @@ void set_decimal_mantissa(r_value_storage* storage, int64_t mantissa);
 void set_decimal_exponent(r_value_storage* storage, int16_t exponent);
 int64_t get_decimal_mantissa(const r_value_storage* storage);
 int16_t get_decimal_exponent(const r_value_storage* storage);
+void set_array_defined_bit(r_value_storage* storage, bool defined);
+void set_string_value(r_value_storage* storage, const char *v);
+void set_string_value_with_size(r_value_storage* storage, const char *v, std::size_t n);
+bool get_array_is_empty(r_value_storage* storage);
 }
 
 namespace mfast {
@@ -227,22 +233,20 @@ struct decimal_value_storage {
 };
 
 struct string_value_storage {
-  value_storage storage_;
+  r_value_storage storage_ = {};
 
-  string_value_storage() { storage_.of_array.defined_bit_ = 1; }
-  explicit string_value_storage(value_storage s) : storage_(s) {}
+  string_value_storage() {
+      set_array_defined_bit(&storage_, true);
+  }
+  explicit string_value_storage(value_storage s) {
+      memcpy(&storage_, &s, sizeof(s));
+  }
   string_value_storage(const char *v) {
-    storage_.of_array.defined_bit_ = 1;
-    storage_.of_array.len_ = static_cast<uint32_t>(std::strlen(v) + 1);
-    storage_.of_array.content_ = const_cast<char *>(v);
-    storage_.of_array.capacity_in_bytes_ = 0;
+    set_string_value(&storage_, v);
   }
 
   string_value_storage(const char *v, std::size_t n) {
-    storage_.of_array.defined_bit_ = 1;
-    storage_.of_array.len_ = static_cast<uint32_t>(n + 1);
-    storage_.of_array.content_ = const_cast<char *>(v);
-    storage_.of_array.capacity_in_bytes_ = 0;
+    set_string_value_with_size(&storage_, v, n);
   }
 };
 
