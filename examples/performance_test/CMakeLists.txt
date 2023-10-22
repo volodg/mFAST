@@ -1,5 +1,5 @@
 
-set(TEST_LIBS mfast_static mfast_coder_static mfast_xml_parser_static)
+set(TEST_LIBS mfast_static mfast_coder_static mfast_xml_parser_static rfast)
 set(DATA_FILE "complex30000.dat")
 set(TEMPLATE_FILE "example.xml")
 
@@ -35,7 +35,7 @@ target_link_libraries (mf_generic_decode_encode
 
 add_executable (mf_fixed_decode ${FASTTYPEGEN_example_OUTPUTS} fixed_template_test.cpp)
 target_link_libraries (mf_fixed_decode
-                       ${TEST_LIBS} )
+                       ${TEST_LIBS})
 
 add_executable (mf_fixed_decode_encode ${FASTTYPEGEN_example_OUTPUTS} fixed_template_test.cpp)
 set_target_properties(mf_fixed_decode_encode PROPERTIES COMPILE_FLAGS -DWITH_ENCODE)

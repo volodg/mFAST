@@ -1,3 +1,6 @@
+use std::ffi::c_uint;
+use crate::instructions::template_instruction::TemplateInstruction;
+use intbits::Bits;
 
 #[repr(C)]
 pub union ValueStorage {
@@ -7,7 +10,7 @@ pub union ValueStorage {
     of_decimal: ValueStorageDecimal,
     of_group: ValueStorageGroup,
     of_array: ValueStorageArray,
-//     of_templateref: ValueStorageTemplateRef,
+    of_templateref: ValueStorageTemplateRef,
 }
 
 #[repr(C)]
@@ -48,6 +51,7 @@ pub struct ValueStorageGroup {
 } ///< used for group or template
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct ValueStorageArray {
     ///< the length+1 of content; it represents null value or
     ///content is absent
@@ -67,62 +71,71 @@ pub struct ValueStorageArray {
     content_: *mut std::ffi::c_void,
 }
 
-// #[repr(C)]
-// pub struct ValueStorageTemplateRef {
-//     of_instruction: ValueStorageTemplateRefInstruction,
-//     content_: *mut ValueStorage,
-// }
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct ValueStorageTemplateRef {
+    of_instruction: ValueStorageTemplateRefInstruction,
+    content_: *mut ValueStorage,
+}
 
-// #[repr(C)]
-// pub union ValueStorageTemplateRefInstruction {
-//     instruction_: *const TemplateInstruction,
-//     dummy_: u64,
-// }
-//
-// impl Default for ValueStorage {
-//     fn default() -> Self {
-//         ValueStorage {
-//             of_uint64: ValueStorageUint64 {
-//                 present_: 0,
-//                 padding_: 0,
-//                 defined_bit_: 0,
-//                 content_: 0,
-//             },
-//         }
-//     }
-// }
-//
-// impl ValueStorage {
-//     fn new_numeric(value: i32) -> Self {
-//         let mut storage = Self::default();
-//         storage.of_uint64.content_ = 0;
-//         storage.of_uint64.padding_ = 0;
-//         storage.of_uint64.defined_bit_ = 1;
-//         storage.of_uint64.present_ = 1;
-//         storage
-//     }
-//
-//     fn new_string(value: *const std::os::raw::c_char) -> Self {
-//         let mut storage = Self::default();
-//         storage.of_array.content_ = value as *mut std::ffi::c_void;
-//         storage.of_array.len_ = 1;
-//         storage.of_array.capacity_in_bytes_ = 0;
-//         storage.of_array.defined_bit_ = 1;
-//         storage
-//     }
-//
-//     fn is_defined(&self) -> bool {
-//         self.of_array.defined_bit_ != 0
-//     }
-//
-//     fn defined(&mut self, v: bool) {
-//         self.of_array.defined_bit_ = if v { 1 } else { 0 };
-//     }
-//
-//     fn is_empty(&self) -> bool {
-//         self.of_array.len_ == 0
-//     }
-//
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union ValueStorageTemplateRefInstruction {
+    instruction_: *const TemplateInstruction,
+    dummy_: u64,
+}
+
+impl Default for ValueStorage {
+    fn default() -> Self {
+        ValueStorage {
+            of_uint64: ValueStorageUint64 {
+                present_: 0,
+                defined_bit_: 0,
+                content_: 0,
+            },
+        }
+    }
+}
+
+impl ValueStorage {
+    fn new_numeric(value: c_uint) -> Self {
+        let mut storage = Self::default();
+        unsafe {
+            storage.of_uint64.content_ = value as u64;
+            storage.of_uint64.defined_bit_ = 1;
+            storage.of_uint64.present_ = 1;
+        }
+        storage
+    }
+
+    fn new_string(value: *const std::os::raw::c_char) -> Self {
+        let mut storage = Self::default();
+        unsafe {
+            storage.of_array.content_ = value as *mut std::ffi::c_void;
+            storage.of_array.len_ = 1;
+            storage.of_array.capacity_in_bytes_and_defined_bit_ = 1;
+        }
+        storage
+    }
+
+    fn is_defined(&self) -> bool {
+        unsafe {
+            self.of_array.capacity_in_bytes_and_defined_bit_.bit(0)
+        }
+    }
+
+    fn defined(&mut self, v: bool) {
+        unsafe {
+            self.of_array.capacity_in_bytes_and_defined_bit_.set_bit(0, v)
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        unsafe {
+            self.of_array.len_ == 0
+        }
+    }
+
 //     fn present(&mut self, p: bool) {
 //         self.of_array.len_ = if p { 1 } else { 0 };
 //     }
@@ -180,4 +193,4 @@ pub struct ValueStorageArray {
 //     {
 //         self.of_uint64.content_ = v as u64;
 //     }
-// }
+}
