@@ -6,7 +6,7 @@
 #pragma once
 
 #include "mfast_export.h"
-#include <stdint.h>
+#include <cstdint>
 #include <cstring>
 #include <array>
 #include <istream>
