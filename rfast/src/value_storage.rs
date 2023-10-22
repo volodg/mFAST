@@ -136,23 +136,29 @@ impl ValueStorage {
         }
     }
 
-//     fn present(&mut self, p: bool) {
-//         self.of_array.len_ = if p { 1 } else { 0 };
-//     }
-//
-//     fn array_length(&self) -> u32 {
-//         if self.of_array.len_ == 0 {
-//             0
-//         } else {
-//             self.of_array.len_ - 1
-//         }
-//     }
-//
-//     fn set_array_length(&mut self, n: u32) {
-//         self.of_array.len_ = n + 1;
-//     }
-// }
-//
+    fn present(&mut self, p: bool) {
+        unsafe {
+            self.of_array.len_ = if p { 1 } else { 0 };
+        }
+    }
+
+    fn array_length(&self) -> u32 {
+        unsafe {
+            if self.of_array.len_ == 0 {
+                0
+            } else {
+                self.of_array.len_ - 1
+            }
+        }
+    }
+
+    fn set_array_length(&mut self, n: u32) {
+        unsafe {
+            self.of_array.len_ = n + 1;
+        }
+    }
+}
+
 // #[cfg(target_pointer_width = "32")]
 // impl ValueStorage {
 //     fn get<T>(&self) -> T
@@ -193,4 +199,4 @@ impl ValueStorage {
 //     {
 //         self.of_uint64.content_ = v as u64;
 //     }
-}
+//}
